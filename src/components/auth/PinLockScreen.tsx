@@ -19,6 +19,7 @@ import {
   EyeOff,
   User as UserIcon,
   Power,
+  Keyboard,
 } from 'lucide-react';
 import { useBakery } from '../../context/BakeryContext';
 import { sounds } from '../../utils/sound';
@@ -50,7 +51,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
   // Alphanumeric secret input (supports letters and numbers)
   const [secret, setSecret] = useState<string>('');
   const [showSecret, setShowSecret] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isCaps, setIsCaps] = useState<boolean>(false);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState<boolean>(false);
@@ -101,14 +102,10 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
       setErrorMsg(null);
 
       // Pre-check if matching user is locked or needs 2FA
-      const nonActive = selectedUser
-        ? selectedUser.status === 'pending'
-          ? selectedUser
-          : null
-        : users.find(
-            (u) =>
-              (u.pin === trimmed || u.password === trimmed) && u.status === 'pending'
-          );
+      const nonActive = users.find(
+        (u) =>
+          (u.pin === trimmed || u.password === trimmed) && u.status === 'pending'
+      );
 
       if (nonActive) {
         setIsShaking(true);
@@ -122,15 +119,13 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
         return;
       }
 
-      const matchedUser = selectedUser
-        ? selectedUser
-        : users.find(
-            (u) =>
-              u.status === 'active' &&
-              (u.pin === trimmed ||
-                u.password === trimmed ||
-                u.username.toLowerCase() === trimmed.toLowerCase())
-          );
+      const matchedUser = users.find(
+        (u) =>
+          u.status === 'active' &&
+          (u.pin === trimmed ||
+            u.password === trimmed ||
+            u.username.toLowerCase() === trimmed.toLowerCase())
+      );
 
       if (matchedUser) {
         if (matchedUser.isAccountLocked) {
@@ -171,7 +166,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
         }, 700);
       }
     },
-    [unlockTerminal, users, selectedUser, securitySettings.require2FAForManagers, setIsStandbyScreenOpen, setLockedOutUser]
+    [unlockTerminal, users, securitySettings.require2FAForManagers, setIsStandbyScreenOpen, setLockedOutUser]
   );
 
   const handle2FASuccess = () => {
@@ -216,8 +211,6 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
     e.preventDefault();
     handleVerify(secret);
   };
-
-  const activeUsers = users.filter((u) => u.status === 'active');
 
   return (
     <div
@@ -322,7 +315,7 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
       </header>
 
       {/* Center Box: Unified Alphanumeric Login Screen */}
-      <main className="relative my-auto w-full max-w-md flex flex-col items-center z-10 py-3">
+      <main className="relative my-auto w-full max-w-xl flex flex-col items-center z-10 py-3">
         {/* Session Terminated Notice if kicked out */}
         {sessionTerminatedNotice && (
           <div className="w-full mb-3.5 p-3.5 rounded-2xl bg-amber-950/90 border border-amber-500 text-amber-200 text-xs font-bold shadow-xl flex items-start justify-between gap-2.5">
@@ -368,64 +361,6 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
           >
             أدخل كلمة المرور أو رمز PIN الخاص بك (يدعم الحروف الإنجليزية والعربية والأرقام)
           </p>
-        </div>
-
-        {/* Quick User Selector (Optional Filter) */}
-        <div className="w-full mb-3.5">
-          <div className="text-[11px] font-bold text-[#8C827A] mb-1.5 flex items-center justify-between">
-            <span>اختر الحساب (أو اكتب الرمز مباشرة):</span>
-            {selectedUser && (
-              <button
-                type="button"
-                onClick={() => setSelectedUser(null)}
-                className="text-[#D4AF37] hover:underline cursor-pointer"
-              >
-                إلغاء التحديد (تعرف تلقائي)
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-            <button
-              type="button"
-              onClick={() => setSelectedUser(null)}
-              className={`cursor-pointer px-2.5 py-1.5 rounded-xl border text-xs font-bold whitespace-nowrap transition ${
-                !selectedUser
-                  ? isLight
-                    ? 'bg-[#8A6414] text-white border-[#8A6414]'
-                    : 'bg-[#D4AF37] text-stone-950 border-[#D4AF37]'
-                  : isLight
-                  ? 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                  : 'bg-[#181818] text-[#C0B8AE] border-[#2A2A2A] hover:bg-[#222]'
-              }`}
-            >
-              الكل (كشف تلقائي)
-            </button>
-            {activeUsers.map((u) => {
-              const isSelected = selectedUser?.id === u.id;
-              return (
-                <button
-                  key={u.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedUser(isSelected ? null : u);
-                    inputRef.current?.focus();
-                  }}
-                  className={`cursor-pointer px-2.5 py-1.5 rounded-xl border text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition ${
-                    isSelected
-                      ? isLight
-                        ? 'bg-[#8A6414] text-white border-[#8A6414]'
-                        : 'bg-[#D4AF37] text-stone-950 border-[#D4AF37]'
-                      : isLight
-                      ? 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                      : 'bg-[#181818] text-[#C0B8AE] border-[#2A2A2A] hover:bg-[#222]'
-                  }`}
-                >
-                  <span>{u.avatar || (u.role === 'owner' ? '👑' : '🧑‍💼')}</span>
-                  <span>{u.name}</span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         {/* Error Feedback Message */}
@@ -567,96 +502,195 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
               <span>تسجيل الدخول للنظام</span>
             </button>
 
-            {/* Quick Virtual Numeric Keypad for Touchscreen users */}
+            {/* Full Virtual Alphanumeric Keyboard for Touchscreen & High Security */}
             <div className="pt-2">
-              <div className="text-center mb-2">
+              <div className="text-center mb-2 flex items-center justify-between px-1">
                 <span
-                  className={`text-[10px] font-bold ${
+                  className={`text-[11px] font-bold flex items-center gap-1.5 ${
                     isLight ? 'text-[#8A6414]' : 'text-[#D4AF37]'
                   }`}
                 >
-                  لوحة الأرقام السريعة للشاشات اللمسية:
+                  <Keyboard className="w-3.5 h-3.5" />
+                  <span>لوحة المفاتيح الكاملة (أرقام وحروف):</span>
+                </span>
+                <span className="text-[10px] text-stone-400 font-medium">
+                  {isCaps ? 'أحرف كبيرة (CAPS)' : 'أحرف صغيرة (caps)'}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2 sm:gap-2.5 max-w-xs mx-auto">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+
+              <div className="space-y-1.5 w-full select-none" dir="ltr">
+                {/* Row 1: Numbers (1 2 3 4 5 6 7 8 9 0) */}
+                <div className="flex gap-1 sm:gap-1.5 justify-center w-full">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((digit) => (
+                    <button
+                      key={digit}
+                      type="button"
+                      onClick={() => handleKeypadPress(digit)}
+                      className={`cursor-pointer flex-1 max-w-[48px] h-9 sm:h-10 rounded-xl font-mono text-xs sm:text-sm font-black border transition active:scale-95 shadow-xs flex items-center justify-center ${
+                        isLight
+                          ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
+                          : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
+                      }`}
+                    >
+                      {digit}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Row 2: Q W E R T Y U I O P */}
+                <div className="flex gap-1 sm:gap-1.5 justify-center w-full">
+                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((char) => {
+                    const displayChar = isCaps ? char.toUpperCase() : char.toLowerCase();
+                    return (
+                      <button
+                        key={char}
+                        type="button"
+                        onClick={() => handleKeypadPress(displayChar)}
+                        className={`cursor-pointer flex-1 max-w-[48px] h-9 sm:h-10 rounded-xl font-mono text-xs sm:text-sm font-bold border transition active:scale-95 shadow-xs flex items-center justify-center ${
+                          isLight
+                            ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
+                            : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
+                        }`}
+                      >
+                        {displayChar}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Row 3: A S D F G H J K L */}
+                <div className="flex gap-1 sm:gap-1.5 justify-center w-full px-2 sm:px-3">
+                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((char) => {
+                    const displayChar = isCaps ? char.toUpperCase() : char.toLowerCase();
+                    return (
+                      <button
+                        key={char}
+                        type="button"
+                        onClick={() => handleKeypadPress(displayChar)}
+                        className={`cursor-pointer flex-1 max-w-[48px] h-9 sm:h-10 rounded-xl font-mono text-xs sm:text-sm font-bold border transition active:scale-95 shadow-xs flex items-center justify-center ${
+                          isLight
+                            ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
+                            : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
+                        }`}
+                      >
+                        {displayChar}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Row 4: Caps Lock + Z X C V B N M + Backspace */}
+                <div className="flex gap-1 sm:gap-1.5 justify-center w-full">
+                  {/* Caps Lock Toggle */}
                   <button
-                    key={digit}
                     type="button"
-                    onClick={() => handleKeypadPress(digit)}
-                    className={`cursor-pointer py-2.5 sm:py-3 rounded-2xl font-mono text-base sm:text-lg font-black border transition active:scale-95 shadow-sm ${
+                    onClick={() => setIsCaps(!isCaps)}
+                    className={`cursor-pointer px-2 sm:px-3 h-9 sm:h-10 rounded-xl text-[10px] sm:text-xs font-black border transition active:scale-95 flex items-center justify-center gap-1 shrink-0 ${
+                      isCaps
+                        ? isLight
+                          ? 'bg-[#8A6414] text-white border-[#8A6414] shadow-sm'
+                          : 'bg-[#D4AF37] text-stone-950 border-[#D4AF37] shadow-sm shadow-[#D4AF37]/30'
+                        : isLight
+                        ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
+                        : 'bg-[#1E1E1E] hover:bg-[#282828] text-[#C4BCB2] border-[#2F2F2F]'
+                    }`}
+                    title={isCaps ? 'إيقاف الأحرف الكبيرة' : 'تفعيل الأحرف الكبيرة'}
+                  >
+                    <span>⇪</span>
+                    <span>CAPS</span>
+                  </button>
+
+                  {/* Z X C V B N M */}
+                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((char) => {
+                    const displayChar = isCaps ? char.toUpperCase() : char.toLowerCase();
+                    return (
+                      <button
+                        key={char}
+                        type="button"
+                        onClick={() => handleKeypadPress(displayChar)}
+                        className={`cursor-pointer flex-1 max-w-[48px] h-9 sm:h-10 rounded-xl font-mono text-xs sm:text-sm font-bold border transition active:scale-95 shadow-xs flex items-center justify-center ${
+                          isLight
+                            ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
+                            : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
+                        }`}
+                      >
+                        {displayChar}
+                      </button>
+                    );
+                  })}
+
+                  {/* Backspace */}
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress('backspace')}
+                    className={`cursor-pointer px-2.5 sm:px-3.5 h-9 sm:h-10 rounded-xl text-[10px] sm:text-xs font-bold border transition active:scale-95 flex items-center justify-center gap-1 shrink-0 ${
                       isLight
-                        ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
-                        : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
+                        ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
+                        : 'bg-[#1E1E1E] hover:bg-[#282828] text-[#C4BCB2] border-[#2F2F2F]'
+                    }`}
+                    title="تراجع"
+                  >
+                    <Delete className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline text-[10px]">تراجع</span>
+                  </button>
+                </div>
+
+                {/* Row 5: Common symbols + Spacebar + Clear */}
+                <div className="flex gap-1 sm:gap-1.5 justify-center w-full pt-0.5">
+                  {/* Symbols */}
+                  {['@', '!', '.', '_', '-'].map((sym) => (
+                    <button
+                      key={sym}
+                      type="button"
+                      onClick={() => handleKeypadPress(sym)}
+                      className={`cursor-pointer px-2 sm:px-2.5 h-8 sm:h-9 rounded-xl font-mono text-xs sm:text-sm font-black border transition active:scale-95 shadow-xs flex items-center justify-center ${
+                        isLight
+                          ? 'bg-[#FAF6EE] hover:bg-white text-[#8A6414] border-[#E5D7BE]'
+                          : 'bg-[#1F1910] hover:bg-[#292015] text-[#D4AF37] border-[#4A3A18]'
+                      }`}
+                    >
+                      {sym}
+                    </button>
+                  ))}
+
+                  {/* Spacebar */}
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress(' ')}
+                    className={`cursor-pointer flex-1 max-w-[150px] sm:max-w-[180px] h-8 sm:h-9 rounded-xl text-[11px] font-bold border transition active:scale-95 flex items-center justify-center ${
+                      isLight
+                        ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8]'
+                        : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A]'
                     }`}
                   >
-                    {digit}
+                    <span>مسافة (Space)</span>
                   </button>
-                ))}
 
-                {/* Clear Button */}
-                <button
-                  type="button"
-                  onClick={() => handleKeypadPress('clear')}
-                  className={`cursor-pointer py-2.5 sm:py-3 rounded-2xl font-bold border transition active:scale-95 flex flex-col items-center justify-center ${
-                    isLight
-                      ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
-                      : 'bg-[#1C1C1C] hover:bg-[#262626] text-[#A8A096] border-[#2F2F2F]'
-                  }`}
-                  title="مسح الكل"
-                >
-                  <RotateCcw className="w-4 h-4 mb-0.5" />
-                  <span className="text-[9px]">مسح</span>
-                </button>
-
-                {/* 0 Button */}
-                <button
-                  type="button"
-                  onClick={() => handleKeypadPress('0')}
-                  className={`cursor-pointer py-2.5 sm:py-3 rounded-2xl font-mono text-base sm:text-lg font-black border transition active:scale-95 shadow-sm ${
-                    isLight
-                      ? 'bg-white hover:bg-[#FAF6EE] text-[#1F1B16] border-[#E8E2D8] hover:border-[#D4AF37]'
-                      : 'bg-[#181818] hover:bg-[#222222] text-[#F5EBE6] border-[#2A2A2A] hover:border-[#5A451A]'
-                  }`}
-                >
-                  0
-                </button>
-
-                {/* Backspace Button */}
-                <button
-                  type="button"
-                  onClick={() => handleKeypadPress('backspace')}
-                  className={`cursor-pointer py-2.5 sm:py-3 rounded-2xl font-bold border transition active:scale-95 flex flex-col items-center justify-center ${
-                    isLight
-                      ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
-                      : 'bg-[#1C1C1C] hover:bg-[#262626] text-[#A8A096] border-[#2F2F2F]'
-                  }`}
-                  title="تراجع"
-                >
-                  <Delete className="w-4 h-4 mb-0.5" />
-                  <span className="text-[9px]">تراجع</span>
-                </button>
+                  {/* Clear button */}
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress('clear')}
+                    className={`cursor-pointer px-2.5 sm:px-3 h-8 sm:h-9 rounded-xl text-[10px] sm:text-xs font-bold border transition active:scale-95 flex items-center justify-center gap-1 shrink-0 ${
+                      isLight
+                        ? 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200'
+                        : 'bg-red-950/40 hover:bg-red-950/70 text-red-300 border-red-900/50'
+                    }`}
+                    title="مسح الكل"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>مسح</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Default credentials hint */}
-            <div
-              className={`mt-2 w-full p-2.5 rounded-xl border text-[11px] text-center ${
-                isLight
-                  ? 'bg-[#FFFDF8] border-[#ECD8B5] text-[#7A6224]'
-                  : 'bg-[#16130B] border-[#3D2E14] text-[#D4AF37]'
-              }`}
-            >
-              <span className="font-bold block mb-0.5">💡 بيانات التجربة السريعة:</span>
-              <span className="font-mono text-[10px]">المدير: 123456 أو Owner@2026! | الكاشير: 111111 أو Cashier1@2026!</span>
-            </div>
           </form>
         )}
       </main>
 
-      {/* Footer Navigation (Cleaned: NO register button, only standby screen) */}
+      {/* Footer Navigation */}
       <footer
-        className={`relative w-full max-w-3xl flex items-center justify-between gap-3 pt-3 border-t z-10 text-xs ${
+        className={`relative w-full max-w-3xl flex items-center justify-center gap-3 pt-3 border-t z-10 text-xs ${
           isLight ? 'border-[#E8E2D8] text-[#6E6359]' : 'border-[#222222]/80 text-[#8C827A]'
         }`}
       >
@@ -665,20 +699,6 @@ export const PinLockScreen: React.FC<PinLockScreenProps> = () => {
             تسجيل الموظفين الجدد محصور بصلاحية المدير العام فقط من داخل لوحة التحكم.
           </span>
         </div>
-
-        <button
-          type="button"
-          onClick={turnOffScreen}
-          className={`cursor-pointer font-bold transition flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border ${
-            isLight
-              ? 'bg-amber-50/90 border-amber-300 text-amber-950 hover:bg-amber-100'
-              : 'bg-[#1F170E] border-[#5A451A] text-[#D4AF37] hover:bg-[#2A2013]'
-          }`}
-          title="إطفاء الشاشة وعرض شاشة الأمان والساعة"
-        >
-          <Power className="w-3.5 h-3.5 text-[#D4AF37]" />
-          <span>إطفاء الشاشة (الأمان والساعة)</span>
-        </button>
       </footer>
 
       {/* Two-Factor Authentication Modal for Manager Fast PIN */}
