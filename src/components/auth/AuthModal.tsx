@@ -388,7 +388,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder="owner أو ahmed أو اسم حسابك..."
+                        placeholder="اكتب اسمك"
                         className={`w-full pl-3 pr-9 py-2 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#D4AF37] ${
                           isLight
                             ? 'bg-[#FAF8F5] border-[#E2DAD0] text-[#1F1B16] placeholder-stone-400'
@@ -422,7 +422,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                         required
                         value={secretInput}
                         onChange={(e) => setSecretInput(e.target.value)}
-                        placeholder="123456 أو كلمة المرور..."
+                        placeholder="كلمة المرور"
                         className={`w-full pl-10 pr-9 py-2 text-xs rounded-xl border font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-[#D4AF37] ${
                           isLight
                             ? 'bg-[#FAF8F5] border-[#E2DAD0] text-[#1F1B16] placeholder-stone-400'
@@ -476,51 +476,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   >
                     دخول للنظام
                   </button>
-
-                  {/* Fast login helpers for review */}
-                  <div
-                    className={`pt-3 border-t ${
-                      isLight ? 'border-[#E8E2D8]' : 'border-[#262626]'
-                    }`}
-                  >
-                    <span
-                      className={`text-[10px] block mb-2 text-center ${
-                        isLight ? 'text-stone-500' : 'text-[#8C827A]'
-                      }`}
-                    >
-                      أو انقر للدخول السريع كحساب تجريبي:
-                    </span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUsername('owner');
-                          setSecretInput('123456');
-                        }}
-                        className={`cursor-pointer p-2 rounded-xl border text-xs font-bold transition text-center ${
-                          isLight
-                            ? 'bg-[#FDF6E7] border-[#DEC798] text-[#8A6414] hover:bg-[#F9ECCF]'
-                            : 'bg-[#241D12] border-[#5A451A] text-[#D4AF37] hover:bg-[#2F2617]'
-                        }`}
-                      >
-                        👑 المدير (إبراهيم)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUsername('ahmed');
-                          setSecretInput('111111');
-                        }}
-                        className={`cursor-pointer p-2 rounded-xl border text-xs font-bold transition text-center ${
-                          isLight
-                            ? 'bg-[#FAF8F5] border-[#E2DAD0] text-[#1F1B16] hover:bg-stone-100'
-                            : 'bg-[#1E1E1E] border-[#333333] text-[#E0D8D0] hover:bg-[#282828]'
-                        }`}
-                      >
-                        🧑‍💼 كاشير (أحمد حسني)
-                      </button>
-                    </div>
-                  </div>
                 </form>
             </div>
           </motion.div>
