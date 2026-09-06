@@ -17,13 +17,14 @@ import {
   ShieldCheck,
   Package,
   Power,
+  ChefHat,
 } from 'lucide-react';
 import { useBakery } from '../../context/BakeryContext';
 import { LowStockAlertModal } from './LowStockAlertModal';
 
 interface HeaderProps {
-  currentView: 'pos' | 'dashboard';
-  onViewChange: (view: 'pos' | 'dashboard') => void;
+  currentView: 'pos' | 'dashboard' | 'kitchen';
+  onViewChange: (view: 'pos' | 'dashboard' | 'kitchen') => void;
   onOpenAuth: () => void;
   onOpenRefundModal: () => void;
 }
@@ -126,6 +127,22 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 type="button"
+                onClick={() => onViewChange('kitchen')}
+                className={`cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all ${
+                  currentView === 'kitchen'
+                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
+                    : isLight
+                    ? 'text-[#6E6359] hover:text-[#1F1B16] hover:bg-white'
+                    : 'text-[#9C948A] hover:text-[#F5EBE6] hover:bg-[#222222]'
+                }`}
+                title="واجهة الشيف والمخبوزات وطلب المقادير"
+              >
+                <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="text-xs sm:text-sm">الخبز والإنتاج</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => onViewChange('dashboard')}
                 className={`cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all relative ${
                   currentView === 'dashboard'
@@ -143,10 +160,51 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           ) : (
-            /* Staff / Cashier Badge */
-            <div className="flex items-center gap-1.5 shrink-0 min-w-0">
+            /* Staff / Cashier / Chef Navigation Tabs & Badge */
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               <div
-                className={`flex items-center gap-1.5 py-1 px-2 rounded-2xl border text-xs max-w-[100px] xs:max-w-[140px] sm:max-w-[200px] truncate ${
+                className={`flex items-center gap-0.5 sm:gap-1 p-0.5 sm:p-1 rounded-2xl border shrink-0 ${
+                  isLight
+                    ? 'bg-[#F4EFE6] border-[#E2DAD0]'
+                    : 'bg-[#181818] border-[#282828]'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => onViewChange('pos')}
+                  className={`cursor-pointer px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
+                    currentView === 'pos'
+                      ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
+                      : isLight
+                      ? 'text-[#6E6359] hover:text-[#1F1B16] hover:bg-white'
+                      : 'text-[#9C948A] hover:text-[#F5EBE6] hover:bg-[#222222]'
+                  }`}
+                  title="نقطة البيع (الكاشير)"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-xs">نقطة البيع</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onViewChange('kitchen')}
+                  className={`cursor-pointer px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
+                    currentView === 'kitchen'
+                      ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
+                      : isLight
+                      ? 'text-[#6E6359] hover:text-[#1F1B16] hover:bg-white'
+                      : 'text-[#9C948A] hover:text-[#F5EBE6] hover:bg-[#222222]'
+                  }`}
+                  title="طلب مقادير وخبز دفعات جديدة"
+                >
+                  <ChefHat className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-xs">طلب مقادير وخبز</span>
+                </button>
+              </div>
+
+              {/* Staff Badge */}
+              <div
+                className={`flex items-center gap-1.5 py-1 px-2 rounded-2xl border text-xs max-w-[90px] xs:max-w-[130px] sm:max-w-[180px] truncate ${
                   isLight
                     ? 'bg-[#F4EFE6] border-[#E2DAD0]'
                     : 'bg-[#181818] border-[#282828]'
@@ -159,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
                       : 'bg-[#282012] border border-[#5A451A] text-[#D4AF37]'
                   }`}
                 >
-                  {currentUser?.avatar || '🧑‍💼'}
+                  {currentUser?.avatar || '🧑‍🍳'}
                 </div>
                 <div className="flex flex-col text-right truncate">
                   <span
@@ -167,14 +225,14 @@ export const Header: React.FC<HeaderProps> = ({
                       isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
                     }`}
                   >
-                    {currentUser?.name || 'كاشير'}
+                    {currentUser?.name || 'موظف'}
                   </span>
                   <span
                     className={`text-[8px] sm:text-[9px] hidden sm:inline ${
                       isLight ? 'text-emerald-700' : 'text-emerald-400'
                     }`}
                   >
-                    كاشير نشط 🟢
+                    {currentUser?.jobTitle || (currentView === 'kitchen' ? 'شيف نشط 🟢' : 'كاشير نشط 🟢')}
                   </span>
                 </div>
               </div>
@@ -182,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenRefundModal}
-                className={`cursor-pointer px-2 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 border hidden md:flex shrink-0 ${
+                className={`cursor-pointer px-2 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1 border hidden lg:flex shrink-0 ${
                   isLight
                     ? 'bg-[#FDF7E7] text-[#8A6414] border-[#ECD9B4] hover:bg-[#FAF0D8]'
                     : 'text-[#D4AF37] hover:bg-[#241D12] border-[#4A3B1B]'
@@ -190,7 +248,7 @@ export const Header: React.FC<HeaderProps> = ({
                 title="طلب استرجاع فاتورة للمدير"
               >
                 <RefreshCw className="w-3 h-3" />
-                <span>طلب استرجاع</span>
+                <span>استرجاع</span>
               </button>
             </div>
           )}
@@ -225,7 +283,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={turnOffScreen}
-              className={`cursor-pointer p-1.5 sm:px-3 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm shrink-0 active:scale-95 ${
+              className={`cursor-pointer p-1.5 sm:p-2 rounded-xl border text-xs font-bold flex items-center justify-center transition-all shadow-sm shrink-0 active:scale-95 ${
                 isLight
                   ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950'
                   : 'bg-[#1F180F] hover:bg-[#2A2014] border-[#5A451A] text-[#D4AF37]'
@@ -233,24 +291,6 @@ export const Header: React.FC<HeaderProps> = ({
               title="إطفاء الشاشة والانتقال الفوري لشاشة الأمان والساعة"
             >
               <Power className="w-4 h-4 shrink-0 text-[#D4AF37]" />
-              <span className="hidden sm:inline font-bold">اطفي الشاشة</span>
-              <span className="inline sm:hidden font-bold text-[11px]">إطفاء</span>
-            </button>
-
-            {/* Quick PIN Lock Button */}
-            <button
-              type="button"
-              onClick={lockTerminal}
-              className={`cursor-pointer p-1.5 sm:px-3 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm shrink-0 active:scale-95 ${
-                isLight
-                  ? 'bg-gradient-to-b from-[#FDF8EE] to-[#F5ECD6] border-[#DFC99E] text-[#8A6414] hover:border-[#D4AF37] hover:bg-[#FAF1DE]'
-                  : 'bg-gradient-to-b from-[#241D12] to-[#1A140B] border-[#5A451A] hover:border-[#D4AF37] text-[#D4AF37] hover:text-[#FFF5DC]'
-              }`}
-              title="قفل الشاشة السريع والتبديل (PIN Lock)"
-            >
-              <Lock className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline font-bold">قفل الشاشة</span>
-              <span className="inline sm:hidden font-bold text-[11px]">قفل</span>
             </button>
           </div>
         </div>

@@ -228,6 +228,7 @@ export const OwnerDashboard: React.FC = () => {
   const [editRole, setEditRole] = useState<'owner' | 'staff'>('staff');
   const [editDepartment, setEditDepartment] = useState<string>('كاشير ومبيعات');
   const [editJobTitle, setEditJobTitle] = useState<string>('كاشير');
+  const [editPreferredView, setEditPreferredView] = useState<'pos' | 'kitchen'>('pos');
 
   // Deactivation confirmation modal state
   const [deactivatingStaffUser, setDeactivatingStaffUser] = useState<User | null>(null);
@@ -1630,6 +1631,16 @@ export const OwnerDashboard: React.FC = () => {
                             setEditRole(user.role);
                             setEditDepartment(user.department || (user.role === 'owner' ? 'إدارة وإشراف' : 'كاشير ومبيعات'));
                             setEditJobTitle(user.jobTitle || (user.role === 'owner' ? 'المدير العام' : 'كاشير'));
+                            setEditPreferredView(
+                              user.preferredView === 'kitchen' ||
+                                user.department === 'bakery' ||
+                                user.department === 'pastry' ||
+                                user.department === 'baker' ||
+                                user.department === 'pastry_chef' ||
+                                user.department === 'مطبخ وإنتاج'
+                                ? 'kitchen'
+                                : 'pos'
+                            );
                           }}
                           className="cursor-pointer flex-1 py-1.5 px-2 rounded-xl bg-[#222222] hover:bg-[#2A2A2A] border border-[#3A3A3A] text-xs font-bold text-[#E0D8D0] flex items-center justify-center gap-1.5 transition"
                         >
@@ -3958,7 +3969,7 @@ export const OwnerDashboard: React.FC = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                updateUserDepartment(editingStaffUser.id, editRole, editDepartment, editJobTitle);
+                updateUserDepartment(editingStaffUser.id, editRole, editDepartment, editJobTitle, editPreferredView);
                 setEditingStaffUser(null);
               }}
               className="space-y-4 text-xs"
@@ -3997,10 +4008,16 @@ export const OwnerDashboard: React.FC = () => {
                   value={editDepartment}
                   onChange={(e) => {
                     setEditDepartment(e.target.value);
-                    if (e.target.value === 'كاشير ومبيعات') setEditJobTitle('كاشير نقطة بيع');
-                    else if (e.target.value === 'مطبخ وإنتاج') setEditJobTitle('شيف مخبوزات وحلويات');
-                    else if (e.target.value === 'مستودع ومخازن') setEditJobTitle('أمين مخزن ومشتريات');
-                    else if (e.target.value === 'إدارة وإشراف') setEditJobTitle('مشرف وردية');
+                    if (e.target.value === 'كاشير ومبيعات') {
+                      setEditJobTitle('كاشير نقطة بيع');
+                    } else if (e.target.value === 'مطبخ وإنتاج') {
+                      setEditJobTitle('شيف مخبوزات وحلويات');
+                      setEditPreferredView('kitchen');
+                    } else if (e.target.value === 'مستودع ومخازن') {
+                      setEditJobTitle('أمين مخزن ومشتريات');
+                    } else if (e.target.value === 'إدارة وإشراف') {
+                      setEditJobTitle('مشرف وردية');
+                    }
                   }}
                   className="w-full p-2.5 rounded-xl bg-[#1C1C1C] border border-[#3A3A3A] text-stone-200 text-xs font-bold focus:outline-none focus:border-[#D4AF37]"
                 >
@@ -4023,8 +4040,42 @@ export const OwnerDashboard: React.FC = () => {
                 />
               </div>
 
+              {/* Default landing interface toggle */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-[#D4AF37] block">
+                  واجهة العمل الافتراضية عند تسجيل الدخول:
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditPreferredView('pos')}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                      editPreferredView === 'pos'
+                        ? 'bg-[#D4AF37] text-stone-950 border-[#D4AF37]'
+                        : 'bg-[#1C1C1C] border-[#333333] text-stone-300'
+                    }`}
+                  >
+                    <span>نقطة البيع (POS) 🛒</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditPreferredView('kitchen')}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                      editPreferredView === 'kitchen'
+                        ? 'bg-[#D4AF37] text-stone-950 border-[#D4AF37]'
+                        : 'bg-[#1C1C1C] border-[#333333] text-stone-300'
+                    }`}
+                  >
+                    <span>شاشة الشيف وخبز الدفعات 👨‍🍳</span>
+                  </button>
+                </div>
+                <span className="text-[10px] text-stone-400 block mt-1">
+                  عندما يكتب الموظف كلمة مروره أو رمزه السري، ستفتح له هذه الواجهة مباشرة. يمكنه التبديل في أي وقت من الشريط العلوي.
+                </span>
+              </div>
+
               <div className="p-3 rounded-2xl bg-[#181818] border border-[#2A2A2A] text-[11px] text-[#A8A096]">
-                ℹ️ نقل الموظف بين الأقسام يغير صلاحياته في النظام وسجل العمليات المحاسبية.
+                ℹ️ شاشة الشيف تتيح طلب مقادير المواد الخام لخبز دفعات جديدة (بالكيلو أو بالقطعة) وحسمها فورياً من المخزن، مع حظر تعديل أسعار البيع أو نسب الوصفات.
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#262626]">

@@ -4,9 +4,13 @@ export type EmployeeDepartment =
   | 'cashier'
   | 'baker'
   | 'pastry_chef'
+  | 'bakery'
+  | 'pastry'
+  | 'kitchen'
   | 'supervisor'
   | 'inventory'
-  | 'manager';
+  | 'manager'
+  | 'admin';
 export type ProductUnit = 'piece' | 'weight';
 export type PaymentMethod = 'cash' | 'card' | 'wallet';
 
@@ -21,6 +25,7 @@ export interface User {
   role: UserRole;
   department?: EmployeeDepartment;
   jobTitle?: string;
+  preferredView?: 'pos' | 'kitchen' | 'dashboard';
   status: UserStatus;
   createdAt: string;
   avatar?: string;

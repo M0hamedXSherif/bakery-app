@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AlertTriangle, X } from 'lucide-react';
 import { BakeryProvider, useBakery } from './context/BakeryContext';
 import { Header } from './components/common/Header';
 import { POSScreen } from './components/pos/POSScreen';
 import { OwnerDashboard } from './components/dashboard/OwnerDashboard';
+import { KitchenProductionScreen } from './components/kitchen/KitchenProductionScreen';
 import { AuthModal } from './components/auth/AuthModal';
 import { StaffRefundModal } from './components/staff/StaffRefundModal';
 import { PinLockScreen } from './components/auth/PinLockScreen';
@@ -30,10 +31,42 @@ function BakeryApp() {
     isStandbyScreenOpen,
   } = useBakery();
 
-  const [currentView, setCurrentView] = useState<'pos' | 'dashboard'>('pos');
+  const [currentView, setCurrentView] = useState<'pos' | 'dashboard' | 'kitchen'>('pos');
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isRefundOpen, setIsRefundOpen] = useState<boolean>(false);
+
+  // Auto-switch view to 'kitchen' if the logged-in user is a chef or baker or preferredView is kitchen
+  useEffect(() => {
+    if (!currentUser) return;
+    if (currentUser.role === 'owner') return;
+
+    if (currentUser.preferredView === 'kitchen') {
+      setCurrentView('kitchen');
+      return;
+    }
+
+    if (currentUser.preferredView === 'pos') {
+      setCurrentView('pos');
+      return;
+    }
+
+    const isChef =
+      currentUser.department === 'baker' ||
+      currentUser.department === 'pastry_chef' ||
+      currentUser.department === 'bakery' ||
+      currentUser.department === 'pastry' ||
+      currentUser.department === 'kitchen' ||
+      currentUser.department === 'مطبخ وإنتاج' ||
+      currentUser.jobTitle?.includes('شيف') ||
+      currentUser.jobTitle?.includes('مخبوزات') ||
+      currentUser.jobTitle?.includes('خبز') ||
+      currentUser.jobTitle?.includes('إنتاج');
+
+    if (isChef) {
+      setCurrentView('kitchen');
+    }
+  }, [currentUser?.id, currentUser?.department, currentUser?.role, currentUser?.preferredView]);
 
   // Hook for Inactivity / Auto-Lock tracking (120s default, warning at 30s)
   // Protects screen if invoice is open (cart.length > 0)
@@ -55,8 +88,17 @@ function BakeryApp() {
     ? isPasswordExpired(currentUser.passwordUpdatedAt, securitySettings.passwordExpiryDays)
     : false;
 
-  // If active user is not owner and view is dashboard, reset to pos
-  const effectiveView = currentUser?.role === 'owner' ? currentView : 'pos';
+  // If active user is not owner and view is dashboard, reset to kitchen or pos based on role
+  const effectiveView: 'pos' | 'dashboard' | 'kitchen' =
+    currentUser?.role === 'owner'
+      ? currentView
+      : currentView === 'dashboard'
+      ? currentUser?.department === 'baker' ||
+        currentUser?.department === 'pastry_chef' ||
+        currentUser?.department === 'bakery'
+        ? 'kitchen'
+        : 'pos'
+      : currentView;
 
   return (
     <div
@@ -107,7 +149,7 @@ function BakeryApp() {
       {/* Main View Area with Smooth Transitions */}
       <main className="flex-1 pt-16 sm:pt-20 pb-12">
         <AnimatePresence mode="wait">
-          {effectiveView === 'pos' ? (
+          {effectiveView === 'pos' && (
             <motion.div
               key="pos"
               initial={{ opacity: 0, y: 8 }}
@@ -117,7 +159,21 @@ function BakeryApp() {
             >
               <POSScreen />
             </motion.div>
-          ) : (
+          )}
+
+          {effectiveView === 'kitchen' && (
+            <motion.div
+              key="kitchen"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <KitchenProductionScreen />
+            </motion.div>
+          )}
+
+          {effectiveView === 'dashboard' && (
             <motion.div
               key="dashboard"
               initial={{ opacity: 0, y: 8 }}

@@ -61,7 +61,7 @@ interface BakeryContextType {
   deactivateUser: (userId: string) => void;
   reactivateUser: (userId: string) => void;
   permanentDeleteUser: (userId: string) => void;
-  updateUserDepartment: (userId: string, department: EmployeeDepartment, jobTitle?: string, role?: UserRole) => void;
+  updateUserDepartment: (userId: string, department: EmployeeDepartment, jobTitle?: string, role?: UserRole, preferredView?: 'pos' | 'kitchen' | 'dashboard') => void;
   verifyOwnerPin: (pin: string) => boolean;
   verifyManagerCredentials: (secret: string) => { success: boolean; managerUser?: User; message?: string };
   authorizeAndActivatePendingUser: (
@@ -1370,33 +1370,65 @@ export const BakeryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [deactivateUser]
   );
 
-  // Edit employee department & job title
+  // Edit employee department & job title & role & preferredView
   const updateUserDepartment = useCallback(
-    (userId: string, department: EmployeeDepartment, jobTitle?: string, role?: UserRole) => {
+    (
+      userId: string,
+      arg2: any,
+      arg3?: any,
+      arg4?: any,
+      preferredView?: 'pos' | 'kitchen' | 'dashboard'
+    ) => {
       const user = users.find((u) => u.id === userId);
       if (!user) return;
       const prevDept = user.department || 'غير محدد';
+
+      // Support both signatures:
+      // (userId, role, department, jobTitle, preferredView)
+      // and (userId, department, jobTitle, role, preferredView)
+      let resolvedRole: UserRole = user.role;
+      let resolvedDept: EmployeeDepartment = user.department || 'cashier';
+      let resolvedTitle: string = user.jobTitle || '';
+      let resolvedPreferredView: 'pos' | 'kitchen' | 'dashboard' | undefined = preferredView;
+
+      if (arg2 === 'owner' || arg2 === 'staff') {
+        resolvedRole = arg2;
+        resolvedDept = arg3 || resolvedDept;
+        resolvedTitle = arg4 !== undefined ? arg4 : resolvedTitle;
+      } else {
+        resolvedDept = arg2 || resolvedDept;
+        resolvedTitle = arg3 !== undefined ? arg3 : resolvedTitle;
+        if (arg4 === 'owner' || arg4 === 'staff') {
+          resolvedRole = arg4;
+        }
+      }
+
       setUsers((prev) =>
         prev.map((u) => {
           if (u.id === userId) {
-            return {
+            const updated: User = {
               ...u,
-              department,
-              jobTitle: jobTitle !== undefined ? jobTitle : u.jobTitle,
-              role: role || u.role,
+              department: resolvedDept,
+              jobTitle: resolvedTitle,
+              role: resolvedRole,
+              preferredView: resolvedPreferredView !== undefined ? resolvedPreferredView : u.preferredView,
             };
+            if (currentUser?.id === userId) {
+              setCurrentUser(updated);
+            }
+            return updated;
           }
           return u;
         })
       );
       logAuditAction(
         'تعديل قسم الموظف والمسمى الوظيفي',
-        `قام المدير بتعديل بيانات الموظف ${user.name}: نقل من قسم (${prevDept}) إلى (${department}) - مسمى: ${jobTitle || user.jobTitle || 'موظف'}`,
+        `قام المدير بتعديل بيانات الموظف ${user.name}: نقل من قسم (${prevDept}) إلى (${resolvedDept}) - مسمى: ${resolvedTitle || 'موظف'} - دور: ${resolvedRole}`,
         'user_department_changed'
       );
       sounds.playSuccess();
     },
-    [users, logAuditAction]
+    [users, currentUser, logAuditAction]
   );
 
   const verifyOwnerPin = useCallback(
