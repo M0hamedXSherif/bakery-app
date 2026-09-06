@@ -25,7 +25,7 @@ import { StartShiftModal } from '../common/StartShiftModal';
 import { CloseShiftModal } from '../common/CloseShiftModal';
 import { Product, PaymentMethod, SaleRecord } from '../../types';
 import { Unlock, AlertCircle, LogOut, Lock, Play } from 'lucide-react';
-import { getShiftDuration, isShiftExpired, checkShiftCloseAllowed } from '../../utils/shiftUtils';
+import { getShiftDuration, checkShiftCloseAllowed } from '../../utils/shiftUtils';
 
 export const POSScreen: React.FC = () => {
   const {
@@ -65,10 +65,6 @@ export const POSScreen: React.FC = () => {
   const isOwner = currentUser?.role === 'owner';
   const isSuspended = !!(currentShift?.isSuspended || currentShift?.status === 'suspended');
   const isMyShift = !!(currentShift && (currentUser?.id === currentShift.cashierId || isOwner));
-
-  const shiftExpired = useMemo(() => {
-    return isShiftExpired(currentShift);
-  }, [currentShift]);
 
   const shiftDuration = useMemo(() => {
     if (!currentShift) return { formatted: '', hours: 0, minutes: 0 };
@@ -126,12 +122,6 @@ export const POSScreen: React.FC = () => {
       return;
     }
 
-    if (shiftExpired.isExpired) {
-      setToastMessage(`⚠️ الشيفت الحالي منتهي الصلاحية (${shiftExpired.reason})! يجب إقفاله وتسويته أولاً عبر Z-Report.`);
-      setIsCloseShiftModalOpen(true);
-      return;
-    }
-
     if (product.unitType === 'weight') {
       setSelectedWeightProduct(product);
       setIsWeightModalOpen(true);
@@ -153,12 +143,6 @@ export const POSScreen: React.FC = () => {
 
     if (isSuspended) {
       setToastMessage(`⚠️ الوردية الحالية معلقة (${currentShift.cashierName})! يجب استئناف الوردية أولاً لمتابعة البيع.`);
-      return;
-    }
-
-    if (shiftExpired.isExpired) {
-      setToastMessage(`⚠️ الشيفت الحالي منتهي الصلاحية (${shiftExpired.reason})! يجب إقفاله وتسويته أولاً.`);
-      setIsCloseShiftModalOpen(true);
       return;
     }
 
@@ -335,9 +319,7 @@ export const POSScreen: React.FC = () => {
                 </span>
                 <span
                   className={`font-mono font-bold text-xs sm:text-sm flex items-center justify-center gap-1 ${
-                    shiftExpired.isExpired
-                      ? 'text-red-500 font-black'
-                      : isLight
+                    isLight
                       ? 'text-[#1F1B16]'
                       : 'text-[#E0D8D0]'
                   }`}
@@ -438,42 +420,6 @@ export const POSScreen: React.FC = () => {
               <span>إقفال وتسوية العهدة</span>
             </button>
           </div>
-        </motion.div>
-      )}
-
-      {/* Mandatory Shift Expiration Warning Notification */}
-      {currentShift && shiftExpired.isExpired && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-3xl border bg-gradient-to-r from-red-950/90 via-red-900/80 to-amber-950/90 border-red-500/80 text-red-100 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3"
-        >
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-red-600/30 border border-red-500 text-red-200 shrink-0">
-              <AlertTriangle className="w-5 h-5 text-red-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-bold text-sm sm:text-base text-red-200">
-                  ⚠️ تنبيه إجباري: هذا الشيفت منتهي الصلاحية ({shiftExpired.reason})
-                </h4>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-800/80 border border-red-400 font-mono">
-                  مدة الفتح: {shiftDuration.formatted}
-                </span>
-              </div>
-              <p className="text-xs text-red-200/90 mt-1">
-                بموجب القواعد المحاسبية الصارمة، يُمنع منعاً باتاً تسجيل أي مبيعات جديدة على شيفت منتهٍ لتجنب أي تلاعب مالي أو تداخل بين الورديات. يجب إقفال الوردية وعمل التسوية النقدية فوراً.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsCloseShiftModalOpen(true)}
-            className="cursor-pointer shrink-0 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-500 to-amber-600 hover:from-red-400 hover:to-amber-500 text-white font-black text-xs shadow-lg shadow-red-950/50 transition flex items-center gap-2 active:scale-95"
-          >
-            <Lock className="w-4 h-4" />
-            <span>إقفال الشيفت واستخراج Z-Report</span>
-          </button>
         </motion.div>
       )}
 

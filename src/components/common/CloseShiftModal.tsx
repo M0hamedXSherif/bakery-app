@@ -21,7 +21,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useBakery } from '../../context/BakeryContext';
-import { getShiftDuration, isShiftExpired, getShiftShortId, checkShiftCloseAllowed } from '../../utils/shiftUtils';
+import { getShiftDuration, getShiftShortId, checkShiftCloseAllowed } from '../../utils/shiftUtils';
 import { sounds } from '../../utils/sound';
 import { ZReportModal } from './ZReportModal';
 import { ShiftSession, ShiftCashDenominations, ShiftCashierSignature } from '../../types';
@@ -115,7 +115,6 @@ export const CloseShiftModal: React.FC<CloseShiftModalProps> = ({
   if (!currentShift) return null;
 
   const duration = getShiftDuration(currentShift.openedAt);
-  const expiredCheck = isShiftExpired(currentShift);
   const shortId = getShiftShortId(currentShift.id);
 
   const startingCash = currentShift.startingCash || 0;
@@ -291,19 +290,6 @@ export const CloseShiftModal: React.FC<CloseShiftModalProps> = ({
                 </div>
               )}
 
-              {/* Expired Shift Urgent Warning */}
-              {expiredCheck.isExpired && (
-                <div className="p-3.5 rounded-2xl bg-red-950/80 border border-red-700 text-red-200 space-y-1">
-                  <div className="flex items-center gap-2 font-bold text-sm text-red-300">
-                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-                    <span>تنبيه إقفال إجباري: الوردية منتهية الصلاحية!</span>
-                  </div>
-                  <p className="text-[11px] text-red-300/90 leading-relaxed">
-                    السبب: {expiredCheck.reason}. لا يمكن متابعة البيع أو بدء وردية جديدة حتى يتم إقفال هذا الشيفت وتسويته محاسبياً بالكامل.
-                  </p>
-                </div>
-              )}
-
               {errorMsg && (
                 <div className="p-3 rounded-xl bg-red-900/60 border border-red-700 text-red-200 text-xs font-bold flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -389,29 +375,46 @@ export const CloseShiftModal: React.FC<CloseShiftModalProps> = ({
                       جرد فئات النقدية بالدرج (العد التفصيلي) *
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 bg-stone-200 dark:bg-stone-800 p-0.5 rounded-xl text-[11px]">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setUseDenominations(true)}
-                      className={`cursor-pointer px-2.5 py-1 rounded-lg font-bold transition ${
-                        useDenominations
-                          ? 'bg-[#D4AF37] text-stone-950 shadow-sm'
-                          : 'text-[#8C827A] hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
+                      onClick={() => {
+                        setUseDenominations(false);
+                        setDirectCashStr(expectedCash.toString());
+                      }}
+                      className="cursor-pointer px-2.5 py-1 rounded-lg font-bold text-[11px] bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition flex items-center gap-1"
+                      title="مطابقة المبلغ الفعلي مع المتوقع تلقائياً"
                     >
-                      عد بالفئات
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>مطابقة سريعة ({expectedCash.toLocaleString()} ج)</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setUseDenominations(false)}
-                      className={`cursor-pointer px-2.5 py-1 rounded-lg font-bold transition ${
-                        !useDenominations
-                          ? 'bg-[#D4AF37] text-stone-950 shadow-sm'
-                          : 'text-[#8C827A] hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                      مبلغ إجمالي
-                    </button>
+                    <div className="flex items-center gap-1 bg-stone-200 dark:bg-stone-800 p-0.5 rounded-xl text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setUseDenominations(true)}
+                        className={`cursor-pointer px-2.5 py-1 rounded-lg font-bold transition ${
+                          useDenominations
+                            ? 'bg-[#D4AF37] text-stone-950 shadow-sm'
+                            : 'text-[#8C827A] hover:text-stone-900 dark:hover:text-stone-200'
+                        }`}
+                      >
+                        عد بالفئات
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUseDenominations(false);
+                          if (!directCashStr) setDirectCashStr(expectedCash.toString());
+                        }}
+                        className={`cursor-pointer px-2.5 py-1 rounded-lg font-bold transition ${
+                          !useDenominations
+                            ? 'bg-[#D4AF37] text-stone-950 shadow-sm'
+                            : 'text-[#8C827A] hover:text-stone-900 dark:hover:text-stone-200'
+                        }`}
+                      >
+                        مبلغ إجمالي
+                      </button>
+                    </div>
                   </div>
                 </div>
 

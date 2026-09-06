@@ -152,7 +152,8 @@ export function checkShiftCloseAllowed(
 }
 
 /**
- * Checks whether a shift has expired (exceeded 12 hours OR passed the financial calendar day)
+ * Checks whether a shift has expired
+ * Note: Disabled hard expiration blocking per user requirement so shifts are never locked or blocked
  */
 export function isShiftExpired(shift: ShiftSession | null): {
   isExpired: boolean;
@@ -173,29 +174,7 @@ export function isShiftExpired(shift: ShiftSession | null): {
   const now = new Date();
   const hoursElapsed = (now.getTime() - openedDate.getTime()) / (1000 * 60 * 60);
 
-  // Check if opened on a previous calendar day (e.g. yesterday or earlier)
-  const openedDayString = openedDate.toISOString().split('T')[0];
-  const todayString = now.toISOString().split('T')[0];
-  const isPastFinancialDay = openedDayString !== todayString;
-
-  if (isPastFinancialDay) {
-    return {
-      isExpired: true,
-      hoursElapsed: +hoursElapsed.toFixed(1),
-      isPastFinancialDay: true,
-      reason: `تجاوز اليوم المالي (تاريخ فتح الشيفت: ${openedDate.toLocaleDateString('ar-EG')})`,
-    };
-  }
-
-  if (hoursElapsed >= MAX_SHIFT_HOURS) {
-    return {
-      isExpired: true,
-      hoursElapsed: +hoursElapsed.toFixed(1),
-      isPastFinancialDay: false,
-      reason: `تجاوز الحد الأقصى المسموح لساعات الوردية (${Math.floor(hoursElapsed)} ساعة / الحد: ${MAX_SHIFT_HOURS} ساعة)`,
-    };
-  }
-
+  // Return non-expired so sales and closing are never blocked
   return {
     isExpired: false,
     hoursElapsed: +hoursElapsed.toFixed(1),

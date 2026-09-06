@@ -1817,33 +1817,6 @@ export const OwnerDashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Active Shift Expiration Warning */}
-          {currentShift && isShiftExpired(currentShift).isExpired && (
-            <div className="p-4 rounded-3xl border bg-gradient-to-r from-red-950/90 via-red-900/80 to-amber-950/90 border-red-500/80 text-red-100 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-2xl bg-red-600/30 border border-red-500 text-red-200 shrink-0">
-                  <AlertTriangle className="w-5 h-5 text-red-300 animate-pulse" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-red-200">
-                    ⚠️ تحذير: الشيفت المفتوح حالياً منتهي الصلاحية ({isShiftExpired(currentShift).reason})!
-                  </h4>
-                  <p className="text-xs text-red-200/90 mt-0.5">
-                    مفتوح منذ {getShiftDuration(currentShift.openedAt).formatted}. تم حظر تسجيل المبيعات عليه تلقائياً لمنع التلاعب المحاسبي وتداخل الأيام. يجب إقفاله الآن.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCloseShiftModalOpen(true)}
-                className="cursor-pointer shrink-0 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-500 to-amber-600 hover:from-red-400 hover:to-amber-500 text-white font-black text-xs shadow-lg transition flex items-center gap-2"
-              >
-                <Lock className="w-4 h-4" />
-                <span>إقفال الشيفت واستخراج Z-Report</span>
-              </button>
-            </div>
-          )}
-
           {/* Active Shift Card */}
           {currentShift ? (
             <div className="bg-gradient-to-br from-[#241D12] via-[#1A1A1A] to-[#121212] text-[#F5EBE6] p-6 rounded-3xl border border-[#5A451A] shadow-xl space-y-5">
@@ -1856,10 +1829,6 @@ export const OwnerDashboard: React.FC = () => {
                     {currentShift.isSuspended || currentShift.status === 'suspended' ? (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-700 animate-pulse">
                         معلقة مؤقتاً (Suspended) ⏸️
-                      </span>
-                    ) : isShiftExpired(currentShift).isExpired ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-950 text-red-400 border border-red-700">
-                        منتهية الصلاحية 🔴
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-700">

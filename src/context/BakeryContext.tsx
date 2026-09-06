@@ -1861,15 +1861,6 @@ export const BakeryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         };
       }
 
-      const shiftExpiredCheck = isShiftExpired(currentShift);
-      if (shiftExpiredCheck.isExpired) {
-        sounds.playWarning();
-        return {
-          success: false,
-          message: `⚠️ تحذير إجباري: هذا الشيفت منتهي الصلاحية (${shiftExpiredCheck.reason})! يُمنع تسجيل أي مبيعات على شيفت قديم منعاً للتلاعب المحاسبي. يجب إقفال الشيفت وتسويته نقدياً عبر تقرير Z-Report أولاً.`,
-        };
-      }
-
       // Find latest product data from state
       const currentProd = products.find((p) => p.id === product.id) || product;
 
@@ -1958,15 +1949,6 @@ export const BakeryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return {
           success: false,
           message: 'عفواً! لا يمكن إضافة أصناف للسلة لعدم وجود شيفت مفتوح. يجب فتح شيفت كاشير أولاً.',
-        };
-      }
-
-      const shiftExpiredCheck = isShiftExpired(currentShift);
-      if (shiftExpiredCheck.isExpired) {
-        sounds.playWarning();
-        return {
-          success: false,
-          message: `⚠️ تحذير إجباري: هذا الشيفت منتهي الصلاحية (${shiftExpiredCheck.reason})! يُمنع تسجيل أي مبيعات على شيفت قديم. يجب إقفال الشيفت وتسويته نقدياً عبر تقرير Z-Report.`,
         };
       }
 
@@ -2125,15 +2107,6 @@ export const BakeryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return {
           success: false,
           message: 'عفواً! لا يمكن تسجيل عملية بيع لعدم وجود شيفت مفتوح. يجب فتح شيفت كاشير أولاً.',
-        };
-      }
-
-      const shiftExpiredCheck = isShiftExpired(currentShift);
-      if (shiftExpiredCheck.isExpired) {
-        sounds.playWarning();
-        return {
-          success: false,
-          message: `⚠️ تحذير إجباري: الشيفت الحالي قديم ومنتهي الصلاحية (${shiftExpiredCheck.reason})! يُمنع منعاً باتاً تسجيل أي مبيعات على شيفت منتهٍ. يجب تسوية وإغلاق الشيفت فوراً وعمل تقرير Z-Report.`,
         };
       }
 
