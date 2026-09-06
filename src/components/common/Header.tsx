@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{bakerySettings.logoEmoji || '🥐'}</span>
               )}
             </div>
-            <div className="flex flex-col min-w-0">
+            <div className="hidden sm:flex flex-col min-w-0">
               <h1
                 className={`text-xs sm:text-base font-black font-heading tracking-tight leading-tight truncate max-w-[85px] xs:max-w-[130px] sm:max-w-none ${
                   isLight ? 'text-[#1F1B16]' : 'text-[#F5EBE6]'
