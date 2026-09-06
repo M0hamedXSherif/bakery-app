@@ -13,6 +13,7 @@ import {
   Tag,
   Clock,
   TrendingUp,
+  ShoppingCart,
 } from 'lucide-react';
 import { useBakery } from '../../context/BakeryContext';
 import { ProductCard } from './ProductCard';
@@ -269,86 +270,82 @@ export const POSScreen: React.FC = () => {
         {/* Quick Shift Stats or Open Shift CTA */}
         {currentShift ? (
           <div
-            className={`flex items-center justify-between w-full md:w-auto gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xs border text-xs shadow-xs ${
+            className={`w-full md:w-auto p-2.5 sm:p-3 rounded-2xl backdrop-blur-xs border text-xs shadow-xs flex flex-wrap items-center justify-between gap-2 sm:gap-3 ${
               isLight
                 ? 'bg-white/95 border-[#E6DFD5] text-[#1F1B16]'
                 : 'bg-[#141414]/90 border-[#2A2A2A] text-[#E0D8D0]'
             }`}
           >
-            <div className="text-center flex-1 md:flex-initial">
-              <span
-                className={`text-[9px] sm:text-[10px] block ${
-                  isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
-                }`}
-              >
-                عهدة البداية
-              </span>
-              <span
-                className={`font-mono font-bold text-xs sm:text-sm ${
-                  isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
-                }`}
-              >
-                {currentShift.startingCash} ج
-              </span>
-            </div>
-            <div
-              className={`w-px h-6 ${isLight ? 'bg-[#EAE3D8]' : 'bg-[#262626]'}`}
-            />
-            <div className="text-center flex-1 md:flex-initial">
-              <span
-                className={`text-[9px] sm:text-[10px] block ${
-                  isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
-                }`}
-              >
-                مبيعات الشيفت
-              </span>
-              <span className="font-mono font-bold text-[#D4AF37] text-xs sm:text-sm">
-                {currentShift.totalSales.toFixed(2)} ج
-              </span>
-            </div>
-            <div
-              className={`w-px h-6 ${isLight ? 'bg-[#EAE3D8]' : 'bg-[#262626]'}`}
-            />
-            <div className="text-center flex-1 md:flex-initial">
-              <span
-                className={`text-[9px] sm:text-[10px] block ${
-                  isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
-                }`}
-              >
-                الوزن المباع
-              </span>
-              <span
-                className={`font-mono font-bold text-xs sm:text-sm ${
-                  isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
-                }`}
-              >
-                {currentShift.totalWeightSoldKg.toFixed(2)} كجم
-              </span>
-            </div>
-            <div
-              className={`w-px h-6 ${isLight ? 'bg-[#EAE3D8]' : 'bg-[#262626]'}`}
-            />
-            {/* Shift Duration */}
-            <div className="text-center flex-1 md:flex-initial">
-              <span
-                className={`text-[9px] sm:text-[10px] block ${
-                  isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
-                }`}
-              >
-                مدة الشيفت
-              </span>
-              <span
-                className={`font-mono font-bold text-xs sm:text-sm flex items-center justify-center gap-1 ${
-                  shiftExpired.isExpired
-                    ? 'text-red-500 font-black'
-                    : isLight
-                    ? 'text-[#1F1B16]'
-                    : 'text-[#E0D8D0]'
-                }`}
-              >
-                <Clock className="w-3 h-3 text-[#D4AF37]" />
-                <span>{shiftDuration.formatted || '0د'}</span>
-              </span>
+            <div className="grid grid-cols-2 xs:grid-cols-4 gap-2 sm:gap-3 flex-1 items-center">
+              <div className="text-center">
+                <span
+                  className={`text-[9px] sm:text-[10px] block ${
+                    isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
+                  }`}
+                >
+                  عهدة البداية
+                </span>
+                <span
+                  className={`font-mono font-bold text-xs sm:text-sm ${
+                    isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
+                  }`}
+                >
+                  {currentShift.startingCash} ج
+                </span>
+              </div>
+
+              <div className="text-center border-r border-[#EAE3D8] dark:border-[#262626] pr-1.5">
+                <span
+                  className={`text-[9px] sm:text-[10px] block ${
+                    isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
+                  }`}
+                >
+                  مبيعات الشيفت
+                </span>
+                <span className="font-mono font-bold text-[#D4AF37] text-xs sm:text-sm">
+                  {currentShift.totalSales.toFixed(2)} ج
+                </span>
+              </div>
+
+              <div className="text-center border-r border-[#EAE3D8] dark:border-[#262626] pr-1.5">
+                <span
+                  className={`text-[9px] sm:text-[10px] block ${
+                    isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
+                  }`}
+                >
+                  الوزن المباع
+                </span>
+                <span
+                  className={`font-mono font-bold text-xs sm:text-sm ${
+                    isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
+                  }`}
+                >
+                  {currentShift.totalWeightSoldKg.toFixed(2)} كجم
+                </span>
+              </div>
+
+              {/* Shift Duration */}
+              <div className="text-center border-r border-[#EAE3D8] dark:border-[#262626] pr-1.5">
+                <span
+                  className={`text-[9px] sm:text-[10px] block ${
+                    isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
+                  }`}
+                >
+                  مدة الشيفت
+                </span>
+                <span
+                  className={`font-mono font-bold text-xs sm:text-sm flex items-center justify-center gap-1 ${
+                    shiftExpired.isExpired
+                      ? 'text-red-500 font-black'
+                      : isLight
+                      ? 'text-[#1F1B16]'
+                      : 'text-[#E0D8D0]'
+                  }`}
+                >
+                  <Clock className="w-3 h-3 text-[#D4AF37]" />
+                  <span>{shiftDuration.formatted || '0د'}</span>
+                </span>
+              </div>
             </div>
 
             {/* End Shift Button */}
@@ -362,7 +359,7 @@ export const POSScreen: React.FC = () => {
                 }
                 setIsCloseShiftModalOpen(true);
               }}
-              className={`cursor-pointer ml-1 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition active:scale-95 border ${
+              className={`cursor-pointer w-full xs:w-auto px-3 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition active:scale-95 border ${
                 closeTiming.canClose
                   ? 'bg-red-600/10 hover:bg-red-600/20 border-red-600/30 text-red-500 hover:text-red-400'
                   : 'bg-amber-600/15 hover:bg-amber-600/25 border-amber-600/40 text-amber-400 hover:text-amber-300'
@@ -374,7 +371,7 @@ export const POSScreen: React.FC = () => {
               }
             >
               <Lock className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">
+              <span>
                 {closeTiming.canClose
                   ? 'إقفال الوردية'
                   : `🔒 قفل الوردية (${closeTiming.minutesRemainingToUnlock}د)`}
@@ -526,11 +523,11 @@ export const POSScreen: React.FC = () => {
             </div>
 
             {/* Quick Filter Buttons */}
-            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setFilterType('all')}
-                className={`cursor-pointer px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
+                className={`cursor-pointer px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition shrink-0 ${
                   filterType === 'all'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 font-black shadow-md shadow-[#D4AF37]/20'
                     : isLight
@@ -543,7 +540,7 @@ export const POSScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFilterType('weight')}
-                className={`cursor-pointer px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0 ${
+                className={`cursor-pointer px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center gap-1 shrink-0 ${
                   filterType === 'weight'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 font-black shadow-md shadow-[#D4AF37]/20'
                     : isLight
@@ -557,7 +554,7 @@ export const POSScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFilterType('piece')}
-                className={`cursor-pointer px-3 py-2 rounded-xl text-xs font-bold transition shrink-0 ${
+                className={`cursor-pointer px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition shrink-0 ${
                   filterType === 'piece'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 font-black shadow-md shadow-[#D4AF37]/20'
                     : isLight
@@ -570,7 +567,7 @@ export const POSScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFilterType('low_stock')}
-                className={`cursor-pointer px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0 ${
+                className={`cursor-pointer px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center gap-1 shrink-0 ${
                   filterType === 'low_stock'
                     ? 'bg-red-700 text-white font-black shadow-md'
                     : isLight
@@ -585,13 +582,13 @@ export const POSScreen: React.FC = () => {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1.5 scrollbar-none">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`cursor-pointer px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+                className={`cursor-pointer px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
                   selectedCategory === cat
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 font-black border-[#D4AF37] shadow-md shadow-[#D4AF37]/20'
                     : isLight
@@ -607,14 +604,14 @@ export const POSScreen: React.FC = () => {
           {/* Products Grid (Visual Layout matching Reference Image & elevated) */}
           {filteredProducts.length === 0 ? (
             <div
-              className={`rounded-3xl p-12 text-center border ${
+              className={`rounded-3xl p-8 sm:p-12 text-center border ${
                 isLight
                   ? 'bg-white border-[#E8E2D8]'
                   : 'bg-[#141414] border-[#262626]'
               }`}
             >
               <div
-                className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-3 text-2xl border ${
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto flex items-center justify-center mb-3 text-2xl border ${
                   isLight
                     ? 'bg-[#F8F5F0] border-[#E2DAD0] text-[#D4AF37]'
                     : 'bg-[#1A1A1A] border-[#2A2A2A] text-[#D4AF37]'
@@ -638,7 +635,7 @@ export const POSScreen: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-4">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -651,13 +648,68 @@ export const POSScreen: React.FC = () => {
         </div>
 
         {/* Cart Section (4 cols on large screens, sticky panel) */}
-        <div className="lg:col-span-4 sticky top-20 h-[calc(100vh-6rem)]">
+        <div
+          id="cart-panel-section"
+          className="lg:col-span-4 lg:sticky lg:top-20 h-auto min-h-[420px] lg:h-[calc(100vh-6rem)] pb-16 lg:pb-0"
+        >
           <CartPanel
             onCheckout={() => setIsCheckoutModalOpen(true)}
             onOpenStartShift={() => setIsStartShiftModalOpen(true)}
           />
         </div>
       </div>
+
+      {/* Mobile Floating Cart Summary Bar */}
+      {cart.length > 0 && (
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 50, opacity: 0 }}
+          className="fixed bottom-3 inset-x-3 z-30 lg:hidden"
+        >
+          <div
+            className={`p-2.5 sm:p-3 rounded-2xl shadow-2xl border flex items-center justify-between gap-2.5 ${
+              isLight
+                ? 'bg-[#1F1B16] text-[#F5EBE6] border-[#4A3B1B]'
+                : 'bg-[#161616] text-white border-[#D4AF37]/50 shadow-black/80'
+            }`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-[#D4AF37] text-stone-950 flex items-center justify-center font-black text-xs shrink-0">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[11px] font-bold block truncate">
+                  السلة ({cart.length} أصناف)
+                </span>
+                <span className="text-xs sm:text-sm font-black font-mono text-[#D4AF37]">
+                  {cart.reduce((s, i) => s + i.subtotal, 0).toFixed(2)} ج
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById('cart-panel-section');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="cursor-pointer px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition text-stone-200"
+              >
+                عرض السلة ⬇️
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCheckoutModalOpen(true)}
+                className="cursor-pointer px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 font-black text-xs shadow-md transition active:scale-95"
+              >
+                الدفع 💳
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Start Shift Modal */}
       <StartShiftModal

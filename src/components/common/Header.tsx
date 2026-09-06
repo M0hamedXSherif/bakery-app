@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 sm:gap-3">
           {/* 1. Bakery Logo & Title */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0">
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] via-[#B89028] to-[#6E5005] flex items-center justify-center text-stone-950 shadow-md shadow-[#D4AF37]/20 text-sm sm:text-lg font-black shrink-0 overflow-hidden border border-[#D4AF37]/30">
               {bakerySettings.logoUrl ? (
                 <img
@@ -82,11 +82,12 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{bakerySettings.logoEmoji || '🥐'}</span>
               )}
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <h1
-                className={`text-xs sm:text-base font-black font-heading tracking-tight whitespace-nowrap leading-tight ${
+                className={`text-xs sm:text-base font-black font-heading tracking-tight leading-tight truncate max-w-[85px] xs:max-w-[130px] sm:max-w-none ${
                   isLight ? 'text-[#1F1B16]' : 'text-[#F5EBE6]'
                 }`}
+                title={bakerySettings.name}
               >
                 <span>{bakerySettings.name}</span>
               </h1>
@@ -113,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => onViewChange('pos')}
-                className={`cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all ${
+                className={`cursor-pointer px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all ${
                   currentView === 'pos'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
                     : isLight
@@ -128,7 +129,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => onViewChange('kitchen')}
-                className={`cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all ${
+                className={`cursor-pointer px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all ${
                   currentView === 'kitchen'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
                     : isLight
@@ -138,13 +139,14 @@ export const Header: React.FC<HeaderProps> = ({
                 title="واجهة الشيف والمخبوزات وطلب المقادير"
               >
                 <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span className="text-xs sm:text-sm">الخبز والإنتاج</span>
+                <span className="hidden sm:inline text-xs sm:text-sm">الخبز والإنتاج</span>
+                <span className="inline sm:hidden text-xs">الإنتاج</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => onViewChange('dashboard')}
-                className={`cursor-pointer px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all relative ${
+                className={`cursor-pointer px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 sm:gap-1.5 transition-all relative ${
                   currentView === 'dashboard'
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
                     : isLight
@@ -172,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewChange('pos')}
-                  className={`cursor-pointer px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
+                  className={`cursor-pointer px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
                     currentView === 'pos'
                       ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
                       : isLight
@@ -182,13 +184,14 @@ export const Header: React.FC<HeaderProps> = ({
                   title="نقطة البيع (الكاشير)"
                 >
                   <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-xs">نقطة البيع</span>
+                  <span className="hidden sm:inline text-xs">نقطة البيع</span>
+                  <span className="inline sm:hidden text-xs">البيع</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onViewChange('kitchen')}
-                  className={`cursor-pointer px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
+                  className={`cursor-pointer px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1 transition-all ${
                     currentView === 'kitchen'
                       ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89028] text-stone-950 shadow-md shadow-[#D4AF37]/20 font-black'
                       : isLight
@@ -198,13 +201,14 @@ export const Header: React.FC<HeaderProps> = ({
                   title="طلب مقادير وخبز دفعات جديدة"
                 >
                   <ChefHat className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-xs">طلب مقادير وخبز</span>
+                  <span className="hidden sm:inline text-xs">طلب مقادير وخبز</span>
+                  <span className="inline sm:hidden text-xs">الإنتاج</span>
                 </button>
               </div>
 
               {/* Staff Badge */}
               <div
-                className={`flex items-center gap-1.5 py-1 px-2 rounded-2xl border text-xs max-w-[90px] xs:max-w-[130px] sm:max-w-[180px] truncate ${
+                className={`hidden xs:flex items-center gap-1.5 py-1 px-1.5 sm:px-2 rounded-2xl border text-xs max-w-[80px] sm:max-w-[180px] truncate ${
                   isLight
                     ? 'bg-[#F4EFE6] border-[#E2DAD0]'
                     : 'bg-[#181818] border-[#282828]'
@@ -221,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 <div className="flex flex-col text-right truncate">
                   <span
-                    className={`font-bold text-[11px] sm:text-xs leading-tight truncate ${
+                    className={`font-bold text-[10px] sm:text-xs leading-tight truncate ${
                       isLight ? 'text-[#1F1B16]' : 'text-[#E0D8D0]'
                     }`}
                   >
@@ -253,13 +257,13 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* 3. Action Controls: Theme Switcher + Quick Lock Button */}
+          {/* 3. Action Controls: Theme Switcher + Standby Button */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
-              className={`cursor-pointer p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition shadow-xs shrink-0 ${
+              className={`cursor-pointer p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1 transition shadow-xs shrink-0 ${
                 isLight
                   ? 'bg-white hover:bg-stone-100 border-[#E2DAD0] text-[#1F1B16]'
                   : 'bg-[#181818] hover:bg-[#222222] border-[#2B2B2B] hover:border-[#4A3B1B] text-[#E0D8D0]'
@@ -268,18 +272,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {theme === 'dark' ? (
                 <>
-                  <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                  <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
                   <span className="hidden lg:inline text-[11px]">النهار</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 shrink-0" />
                   <span className="hidden lg:inline text-[11px]">الليل</span>
                 </>
               )}
             </button>
 
-            {/* Screen Off / Standby Button (الي يدوس ع زرار اطفي الشاشة سواء كان مدير او موظف يتنقل تلقائ لشاشة الامان والساعة) */}
+            {/* Screen Off / Standby Button */}
             <button
               type="button"
               onClick={turnOffScreen}
@@ -290,18 +294,18 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
               title="إطفاء الشاشة والانتقال الفوري لشاشة الأمان والساعة"
             >
-              <Power className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+              <Power className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#D4AF37]" />
             </button>
           </div>
         </div>
 
         {/* 4. Centered Bottom Chevron Tab for Owner Tools */}
         {isOwner && (
-          <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 z-50">
+          <div className="absolute -bottom-3 sm:-bottom-3.5 left-1/2 -translate-x-1/2 z-50">
             <button
               type="button"
               onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className={`cursor-pointer px-3.5 py-0.5 rounded-full border shadow-lg text-[10px] font-bold flex items-center gap-1.5 transition-all duration-200 ${
+              className={`cursor-pointer px-2.5 sm:px-3.5 py-0.5 rounded-full border shadow-lg text-[9px] sm:text-[10px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all duration-200 whitespace-nowrap ${
                 isDrawerOpen
                   ? 'bg-[#D4AF37] text-stone-950 border-[#E5C04B] shadow-[#D4AF37]/30 scale-105 font-black'
                   : isLight
@@ -311,13 +315,14 @@ export const Header: React.FC<HeaderProps> = ({
               title="لوحة الأدوات والتحكم السريعة للمدير"
             >
               {totalLowStock > 0 && !isDrawerOpen && (
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
               )}
-              <span>{isDrawerOpen ? 'إخفاء الأدوات' : 'أدوات الإدارة السريعة'}</span>
+              <span className="hidden xs:inline">{isDrawerOpen ? 'إخفاء الأدوات' : 'أدوات الإدارة السريعة'}</span>
+              <span className="inline xs:hidden">{isDrawerOpen ? 'إخفاء' : 'أدوات'}</span>
               {isDrawerOpen ? (
-                <ChevronUp className="w-3 h-3" />
+                <ChevronUp className="w-3 h-3 shrink-0" />
               ) : (
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-3 h-3 shrink-0" />
               )}
             </button>
           </div>

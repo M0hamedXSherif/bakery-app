@@ -176,9 +176,9 @@ export const KitchenProductionScreen: React.FC = () => {
           </div>
 
           {/* User badge & Security notice */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
             <div
-              className={`p-3 rounded-2xl border text-xs flex items-center gap-3 ${
+              className={`p-2.5 sm:p-3 rounded-2xl border text-xs flex items-center gap-2 sm:gap-3 ${
                 isLight ? 'bg-white/80 border-[#E2DAD0]' : 'bg-[#181818]/90 border-[#333333]'
               }`}
             >
@@ -196,7 +196,7 @@ export const KitchenProductionScreen: React.FC = () => {
             </div>
 
             <div
-              className={`p-2.5 rounded-2xl border flex items-center gap-2 text-[11px] font-bold ${
+              className={`p-2 sm:p-2.5 rounded-2xl border flex items-center gap-2 text-[11px] font-bold ${
                 isLight
                   ? 'bg-amber-50/80 border-amber-200 text-amber-900'
                   : 'bg-amber-950/30 border-amber-800/60 text-amber-300'

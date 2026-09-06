@@ -31,7 +31,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
     <motion.div
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.98 }}
-      className={`group relative rounded-3xl p-3.5 sm:p-4 transition-all duration-200 shadow-md hover:shadow-xl border flex flex-col justify-between overflow-hidden ${
+      className={`group relative rounded-3xl p-2.5 sm:p-4 transition-all duration-200 shadow-md hover:shadow-xl border flex flex-col justify-between overflow-hidden ${
         isOutOfStock
           ? isLight
             ? 'border-stone-200 opacity-60 bg-stone-100'
@@ -130,7 +130,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
       <div className="flex-1 flex flex-col justify-between">
         <div>
           <h3
-            className={`text-lg sm:text-xl font-black font-heading tracking-tight leading-snug line-clamp-1 mb-1 text-center transition ${
+            className={`text-sm sm:text-base md:text-lg font-black font-heading tracking-tight leading-snug line-clamp-1 mb-1 text-center transition ${
               isLight
                 ? 'text-[#1F1B16] group-hover:text-[#B89028]'
                 : 'text-[#F5EBE6] group-hover:text-[#D4AF37]'
@@ -139,18 +139,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             {product.name}
           </h3>
           <p
-            className={`text-[11px] text-center line-clamp-1 mb-1 ${
+            className={`text-[10px] sm:text-[11px] text-center line-clamp-1 mb-1 ${
               isLight ? 'text-[#6E6359]' : 'text-[#8C827A]'
             }`}
           >
             {product.description || product.category}
           </p>
           <p
-            className={`text-[10px] font-mono text-center mb-2 ${
+            className={`text-[9px] sm:text-[10px] font-mono text-center mb-1.5 sm:mb-2 ${
               isLight ? 'text-[#7A6F65]' : 'text-[#A8A096]'
             }`}
           >
-            المخزون المتوفر:{' '}
+            المخزون:{' '}
             <span
               className={`font-bold ${
                 isLight ? 'text-[#1F1B16]' : 'text-[#F5EBE6]'
@@ -164,21 +164,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
 
         {/* Bottom Price & Purchase Button Bar */}
         <div
-          className={`pt-2 border-t flex items-center justify-between gap-2 ${
+          className={`pt-2 border-t flex items-center justify-between gap-1.5 sm:gap-2 ${
             isLight ? 'border-[#EAE3D8]' : 'border-[#222222]'
           }`}
         >
           {/* Price Tag */}
           <div className="flex items-baseline gap-0.5">
             <span
-              className={`text-xl sm:text-2xl font-black font-mono ${
+              className={`text-base sm:text-xl md:text-2xl font-black font-mono ${
                 isLight ? 'text-[#B89028]' : 'text-[#D4AF37]'
               }`}
             >
               {product.price}
             </span>
             <span
-              className={`text-xs font-bold ${
+              className={`text-[10px] sm:text-xs font-bold ${
                 isLight ? 'text-[#7A6F65]' : 'text-[#8C827A]'
               }`}
             >
@@ -191,7 +191,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             type="button"
             disabled={isOutOfStock || isCartFull}
             onClick={() => onSelect(product)}
-            className={`cursor-pointer px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs ${
+            className={`cursor-pointer px-2.5 sm:px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5 transition-all shadow-xs ${
               isOutOfStock
                 ? isLight
                   ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
