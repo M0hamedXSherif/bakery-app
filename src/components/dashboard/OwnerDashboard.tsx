@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
+  AlertCircle,
   Scale,
   DollarSign,
   Layers,
@@ -55,6 +56,7 @@ import { FileText, ShieldAlert, UserPlus } from 'lucide-react';
 import { SecuritySettingsTab } from './SecuritySettingsTab';
 import { AddStaffModal } from './AddStaffModal';
 import { AuditLogDetailsModal } from './AuditLogDetailsModal';
+import { fileToOptimizedDataUrl, BAKERY_PRESET_IMAGES } from '../../utils/imageUtils';
 
 export const OwnerDashboard: React.FC = () => {
   const {
@@ -179,6 +181,10 @@ export const OwnerDashboard: React.FC = () => {
   const [prodStock, setProdStock] = useState('50');
   const [prodMinAlert, setProdMinAlert] = useState('10');
   const [prodImage, setProdImage] = useState('');
+  const [prodImageMode, setProdImageMode] = useState<'upload' | 'url' | 'preset'>('upload');
+  const [isDraggingProdImage, setIsDraggingProdImage] = useState(false);
+  const [isOptimizingImage, setIsOptimizingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [prodBarcode, setProdBarcode] = useState('');
   const [prodDesc, setProdDesc] = useState('');
 
@@ -282,6 +288,8 @@ export const OwnerDashboard: React.FC = () => {
 
   // Handle Open Product Modal for Add / Edit
   const openProductModal = (product?: Product) => {
+    setImageUploadError(null);
+    setIsOptimizingImage(false);
     if (product) {
       setEditingProduct(product);
       setProdName(product.name);
@@ -291,6 +299,7 @@ export const OwnerDashboard: React.FC = () => {
       setProdStock(product.stock.toString());
       setProdMinAlert(product.minStockAlert.toString());
       setProdImage(product.image);
+      setProdImageMode(product.image.startsWith('data:') ? 'upload' : 'url');
       setProdBarcode(product.barcode || '');
       setProdDesc(product.description || '');
     } else {
@@ -302,10 +311,36 @@ export const OwnerDashboard: React.FC = () => {
       setProdStock('50');
       setProdMinAlert('10');
       setProdImage('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80');
+      setProdImageMode('upload');
       setProdBarcode('');
       setProdDesc('');
     }
     setIsProductModalOpen(true);
+  };
+
+  // Handle local device image upload & optimization for product
+  const handleProductImageFile = async (file?: File) => {
+    if (!file) return;
+    setImageUploadError(null);
+    if (!file.type.startsWith('image/')) {
+      setImageUploadError('يرجى اختيار ملف صورة صالح (PNG, JPG, WebP)');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setImageUploadError('حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 10 ميجابايت');
+      return;
+    }
+
+    try {
+      setIsOptimizingImage(true);
+      const optimized = await fileToOptimizedDataUrl(file, 640, 640, 0.82);
+      setProdImage(optimized);
+      setProdImageMode('upload');
+    } catch {
+      setImageUploadError('تعذر معالجة الصورة، يرجى المحاولة مرة أخرى');
+    } finally {
+      setIsOptimizingImage(false);
+    }
   };
 
   // Handle Save Product
@@ -3201,17 +3236,221 @@ export const OwnerDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-[#A8A096] block mb-1">
-                  رابط صورة المنتج (Image URL):
-                </label>
-                <input
-                  type="url"
-                  value={prodImage}
-                  onChange={(e) => setProdImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#333333] text-[#F5EBE6] placeholder-[#6C635B] rounded-xl focus:outline-none font-mono text-[11px]"
-                />
+              {/* Product Image Section: Local Upload, URL, or Presets */}
+              <div className="space-y-2.5 pt-2 border-t border-[#262626]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <label className="font-bold text-[#A8A096] flex items-center gap-1.5 text-xs">
+                    <Camera className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>صورة المنتج:</span>
+                  </label>
+
+                  {/* Mode Selector Tabs */}
+                  <div className="flex items-center gap-1 bg-[#101010] p-0.5 rounded-xl border border-[#262626] self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setProdImageMode('upload')}
+                      className={`cursor-pointer px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition ${
+                        prodImageMode === 'upload'
+                          ? 'bg-[#D4AF37] text-stone-950 font-black shadow-xs'
+                          : 'text-[#8C827A] hover:text-[#F5EBE6]'
+                      }`}
+                    >
+                      <Upload className="w-3 h-3" />
+                      <span>رفع من الجهاز</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProdImageMode('url')}
+                      className={`cursor-pointer px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition ${
+                        prodImageMode === 'url'
+                          ? 'bg-[#D4AF37] text-stone-950 font-black shadow-xs'
+                          : 'text-[#8C827A] hover:text-[#F5EBE6]'
+                      }`}
+                    >
+                      <LinkIcon className="w-3 h-3" />
+                      <span>رابط URL</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProdImageMode('preset')}
+                      className={`cursor-pointer px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition ${
+                        prodImageMode === 'preset'
+                          ? 'bg-[#D4AF37] text-stone-950 font-black shadow-xs'
+                          : 'text-[#8C827A] hover:text-[#F5EBE6]'
+                      }`}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>صور جاهزة</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview & Current Status */}
+                <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#121212] border border-[#262626]">
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#333] shrink-0 flex items-center justify-center">
+                    {prodImage ? (
+                      <img
+                        src={prodImage}
+                        alt="Product Preview"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80';
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xl">🥐</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-bold text-xs text-[#F5EBE6] truncate">
+                        {prodName || 'معاينة صورة الصنف'}
+                      </span>
+                      {prodImage.startsWith('data:') ? (
+                        <span className="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-700/60 font-bold">
+                          صورة محلية من الجهاز ✓
+                        </span>
+                      ) : prodImage ? (
+                        <span className="text-[9px] bg-[#222] text-[#D4AF37] px-1.5 py-0.5 rounded border border-[#444] font-bold">
+                          رابط إنترنت
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-[10px] text-[#8C827A] mt-0.5 truncate">
+                      تظهر هذه الصورة في شاشة الكاشير والمبيعات وقائمة المنتجات
+                    </p>
+                    {prodImage && (
+                      <button
+                        type="button"
+                        onClick={() => setProdImage('')}
+                        className="cursor-pointer text-[10px] text-red-400 hover:text-red-300 font-bold flex items-center gap-1 transition mt-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>إزالة الصورة والاعتماد على صورة افتراضية</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Upload Error Banner */}
+                {imageUploadError && (
+                  <div className="p-2.5 rounded-xl bg-red-950/70 border border-red-800 text-red-200 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <span>{imageUploadError}</span>
+                  </div>
+                )}
+
+                {/* Mode 1: Upload from Device (File Picker + Drag & Drop) */}
+                {prodImageMode === 'upload' && (
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDraggingProdImage(true);
+                    }}
+                    onDragLeave={() => setIsDraggingProdImage(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingProdImage(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) handleProductImageFile(file);
+                    }}
+                    className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition cursor-pointer ${
+                      isDraggingProdImage
+                        ? 'border-[#D4AF37] bg-[#D4AF37]/10'
+                        : 'border-[#333] hover:border-[#D4AF37]/60 bg-[#141414]'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id="product-image-upload-input"
+                      accept="image/png, image/jpeg, image/webp, image/gif"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleProductImageFile(file);
+                      }}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="product-image-upload-input"
+                      className="cursor-pointer flex flex-col items-center justify-center gap-1.5"
+                    >
+                      <div className="w-10 h-10 rounded-2xl bg-[#202020] text-[#D4AF37] flex items-center justify-center shadow-inner">
+                        {isOptimizingImage ? (
+                          <RefreshCw className="w-5 h-5 animate-spin text-[#D4AF37]" />
+                        ) : (
+                          <Camera className="w-5 h-5 text-[#D4AF37]" />
+                        )}
+                      </div>
+                      <span className="font-bold text-[#F5EBE6] text-xs">
+                        {isOptimizingImage
+                          ? 'جاري ضغط ومعالجة الصورة للاستخدام السريع...'
+                          : 'اضغط لاختيار صورة من جهازك أو اسحبها هنا'}
+                      </span>
+                      <span className="text-[10px] text-[#8C827A]">
+                        يدعم الصور من الهاتف والكمبيوتر (PNG, JPG, WebP) بحجم حتى 10 ميجابايت
+                      </span>
+                    </label>
+                  </div>
+                )}
+
+                {/* Mode 2: External Image URL */}
+                {prodImageMode === 'url' && (
+                  <div className="space-y-1.5">
+                    <input
+                      type="url"
+                      value={prodImage}
+                      onChange={(e) => {
+                        setProdImage(e.target.value);
+                        setImageUploadError(null);
+                      }}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full px-3 py-2.5 bg-[#1E1E1E] border border-[#333333] text-[#F5EBE6] placeholder-[#6C635B] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4AF37] font-mono text-[11px]"
+                    />
+                    <p className="text-[10px] text-[#8C827A]">
+                      يمكنك لصق رابط مباشر لصورة من الإنترنت أو Unsplash
+                    </p>
+                  </div>
+                )}
+
+                {/* Mode 3: Quick Preset Bakery Images */}
+                {prodImageMode === 'preset' && (
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] text-[#8C827A] block">
+                      اختر صورة فورية للمخبوزات بنقرة واحدة:
+                    </span>
+                    <div className="grid grid-cols-4 gap-2">
+                      {BAKERY_PRESET_IMAGES.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setProdImage(preset.url);
+                            setImageUploadError(null);
+                          }}
+                          className={`group cursor-pointer relative rounded-xl overflow-hidden border p-1 text-center transition flex flex-col items-center gap-1 ${
+                            prodImage === preset.url
+                              ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30 bg-[#241D12]'
+                              : 'border-[#2A2A2A] hover:border-[#444] bg-[#141414]'
+                          }`}
+                        >
+                          <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#1A1A1A]">
+                            <img
+                              src={preset.url}
+                              alt={preset.name}
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                            />
+                          </div>
+                          <span className="text-[9px] font-bold text-[#E0D8D0] truncate max-w-full">
+                            {preset.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
